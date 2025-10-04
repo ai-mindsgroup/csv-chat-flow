@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from '@/lib/axios';
-import { FileText, Database, Layers } from 'lucide-react';
+import { FileText, Database, Layers, AlertCircle, RefreshCw } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface FileInfo {
   file_id: string;
@@ -16,6 +17,7 @@ interface FilesListProps {
 const FilesList = ({ refreshTrigger }: FilesListProps) => {
   const [files, setFiles] = useState<FileInfo[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     loadFiles();
@@ -23,10 +25,15 @@ const FilesList = ({ refreshTrigger }: FilesListProps) => {
 
   const loadFiles = async () => {
     try {
+      setLoading(true);
+      setError(null);
       const response = await axios.get('/csv/files');
       setFiles(response.data.files || []);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Erro ao carregar arquivos:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Erro ao conectar com o servidor';
+      setError(errorMessage);
+      setFiles([]);
     } finally {
       setLoading(false);
     }
@@ -36,6 +43,33 @@ const FilesList = ({ refreshTrigger }: FilesListProps) => {
     return (
       <div className="bg-card rounded-lg shadow-sm border p-6">
         <div className="animate-pulse text-muted-foreground">Carregando arquivos...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-card rounded-lg shadow-sm border overflow-hidden">
+        <div className="p-4 border-b bg-muted/30">
+          <h3 className="font-semibold text-foreground flex items-center gap-2">
+            <FileText className="h-5 w-5 text-primary" />
+            Arquivos Enviados
+          </h3>
+        </div>
+        <div className="p-8 text-center">
+          <AlertCircle className="h-12 w-12 mx-auto mb-3 text-destructive opacity-50" />
+          <div className="text-destructive font-medium mb-2">Erro ao carregar arquivos</div>
+          <div className="text-sm text-muted-foreground mb-4">{error}</div>
+          <Button
+            onClick={loadFiles}
+            variant="outline"
+            size="sm"
+            className="gap-2"
+          >
+            <RefreshCw className="h-4 w-4" />
+            Tentar Novamente
+          </Button>
+        </div>
       </div>
     );
   }

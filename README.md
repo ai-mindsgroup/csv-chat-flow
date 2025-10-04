@@ -1,73 +1,137 @@
-# Welcome to your Lovable project
+# CSV Chat Flow - EDA AI Minds
 
-## Project info
+Sistema inteligente de análise de dados CSV com chat interativo e IA.
 
-**URL**: https://lovable.dev/projects/37d2fe7e-602f-45e4-955c-b5dfcf97f3aa
+## 🚀 Quick Start
 
-## How can I edit this code?
+```bash
+# Instalar dependências
+npm install
 
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/37d2fe7e-602f-45e4-955c-b5dfcf97f3aa) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Iniciar o servidor de desenvolvimento
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+A aplicação estará disponível em `http://localhost:8080`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 📋 Pré-requisitos
 
-**Use GitHub Codespaces**
+- Node.js 18+ (recomendado usar [nvm](https://github.com/nvm-sh/nvm))
+- Backend API rodando na porta 8000 ou 8001
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 🎯 Funcionalidades
 
-## What technologies are used for this project?
+- ✅ Upload de arquivos CSV
+- ✅ Chat interativo com IA para análise de dados
+- ✅ Detecção automática de porta do backend
+- ✅ Visualização de arquivos processados
+- ✅ Métricas em tempo real
+- ✅ Interface moderna e responsiva
 
-This project is built with:
+## 🏗️ Tecnologias
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- **Frontend:** React 18 + TypeScript + Vite
+- **UI:** shadcn/ui + Tailwind CSS
+- **State:** React Query (TanStack Query)
+- **HTTP Client:** Axios com detecção automática de porta
+- **Routing:** React Router v6
 
-## How can I deploy this project?
+## 🔧 Configuração
 
-Simply open [Lovable](https://lovable.dev/projects/37d2fe7e-602f-45e4-955c-b5dfcf97f3aa) and click on Share -> Publish.
+### Variáveis de Ambiente (Opcional)
 
-## Can I connect a custom domain to my Lovable project?
+Crie um arquivo `.env` baseado no `.env.example`:
 
-Yes, you can!
+```env
+# Backend API (opcional - detecta automaticamente se não especificado)
+VITE_API_URL=http://localhost:8000
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+# Supabase (se necessário)
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_PUBLISHABLE_KEY=your_key
+```
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+### Backend
+
+O frontend detecta automaticamente qual porta o backend está usando (8000 ou 8001).
+
+**Nenhuma configuração manual necessária!**
+
+Para mais detalhes, veja [docs/PORT_DETECTION.md](./docs/PORT_DETECTION.md)
+
+## 📚 Documentação
+
+Documentação detalhada disponível na pasta [`docs/`](./docs/):
+
+- **[Backend Fix Instructions](./docs/BACKEND_FIX_INSTRUCTIONS.md)** - Como corrigir o roteamento de agentes no backend
+- **[Why Agents Not Working](./docs/WHY_AGENTS_NOT_WORKING.md)** - Diagnóstico completo do problema de invocação de agentes
+- **[Port Detection](./docs/PORT_DETECTION.md)** - Como funciona a detecção automática de porta
+- **[Network Error Fix](./docs/NETWORK_ERROR_FIX.md)** - Correções de erros de rede
+- **[Console Warnings Fix](./docs/CONSOLE_WARNINGS_FIX.md)** - Warnings corrigidos do console
+
+## 🏃 Scripts Disponíveis
+
+```bash
+# Desenvolvimento
+npm run dev
+
+# Build para produção
+npm run build
+
+# Preview da build
+npm run preview
+
+# Lint
+npm run lint
+```
+
+## 📁 Estrutura do Projeto
+
+```
+csv-chat-flow/
+├── src/
+│   ├── components/     # Componentes React
+│   ├── hooks/          # Custom hooks
+│   ├── lib/            # Utilitários e configurações
+│   ├── pages/          # Páginas da aplicação
+│   └── integrations/   # Integrações externas
+├── docs/               # Documentação técnica
+├── public/             # Arquivos estáticos
+└── ...                 # Arquivos de configuração
+```
+
+## 🐛 Solução de Problemas
+
+### Backend não detectado
+- Verifique se o backend está rodando na porta 8000 ou 8001
+- Veja os logs no console do navegador (F12)
+- Consulte [docs/PORT_DETECTION.md](./docs/PORT_DETECTION.md)
+
+### Agentes não estão analisando os dados
+- O problema está no backend, não no frontend
+- Consulte [docs/WHY_AGENTS_NOT_WORKING.md](./docs/WHY_AGENTS_NOT_WORKING.md)
+- Siga as instruções em [docs/BACKEND_FIX_INSTRUCTIONS.md](./docs/BACKEND_FIX_INSTRUCTIONS.md)
+
+### Erros no console
+- Consulte [docs/CONSOLE_WARNINGS_FIX.md](./docs/CONSOLE_WARNINGS_FIX.md)
+
+## 🤝 Contribuindo
+
+1. Fork o projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
+
+## 📄 Licença
+
+Este projeto é privado e pertence à AI Minds Group.
+
+## 🔗 Links Úteis
+
+- [Lovable Project](https://lovable.dev/projects/37d2fe7e-602f-45e4-955c-b5dfcf97f3aa)
+- [Documentação Técnica](./docs/)
+
+---
+
+**Desenvolvido por AI Minds Group** 🧠

@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
-import axios from '@/lib/axios';
-import { Send, Bot, User, Loader2 } from 'lucide-react';
+import axios, { isAxiosError } from 'axios';
+import axiosInstance from '@/lib/axios';
+import { Send, Bot, User, Loader2, FileText, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface Message {
   type: 'user' | 'bot';
@@ -10,7 +12,12 @@ interface Message {
   timestamp: Date;
 }
 
-const ChatInterface = () => {
+interface ChatInterfaceProps {
+  fileId?: string;
+  fileName?: string;
+}
+
+const ChatInterface = ({ fileId, fileName }: ChatInterfaceProps) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       type: 'bot',
@@ -45,9 +52,10 @@ const ChatInterface = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post('/chat', {
+      const response = await axiosInstance.post('/chat', {
         message: input,
         session_id: sessionId,
+        file_id: fileId,
       });
 
       const botMessage: Message = {
@@ -61,11 +69,17 @@ const ChatInterface = () => {
       if (response.data.session_id) {
         setSessionId(response.data.session_id);
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Erro no chat:', error);
+      let errorText = 'Não foi possível processar sua mensagem';
+      if (isAxiosError(error)) {
+        errorText = error.response?.data?.detail || error.message;
+      } else if (error instanceof Error) {
+        errorText = error.message;
+      }
       const errorMessage: Message = {
         type: 'bot',
-        text: `❌ Erro: ${error.response?.data?.detail || error.message || 'Não foi possível processar sua mensagem'}`,
+        text: `❌ Erro: ${errorText}`,
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMessage]);
@@ -83,6 +97,23 @@ const ChatInterface = () => {
 
   return (
     <div className="bg-card rounded-lg shadow-sm border overflow-hidden flex flex-col h-[500px]">
+      {/* File Context Banner */}
+      {fileName && fileId ? (
+        <div className="border-b bg-primary/5 px-4 py-2 flex items-center gap-2">
+          <FileText className="h-4 w-4 text-primary" />
+          <span className="text-sm font-medium text-foreground">
+            Analisando: <span className="text-primary">{fileName}</span>
+          </span>
+        </div>
+      ) : (
+        <Alert className="m-2 border-orange-200 bg-orange-50">
+          <AlertCircle className="h-4 w-4 text-orange-600" />
+          <AlertDescription className="text-sm text-orange-800">
+            Carregue um arquivo CSV acima para começar a análise
+          </AlertDescription>
+        </Alert>
+      )}
+      
       {/* Messages Area */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((msg, i) => (

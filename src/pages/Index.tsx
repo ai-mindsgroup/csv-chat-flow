@@ -8,9 +8,13 @@ import { Brain } from 'lucide-react';
 
 const Index = () => {
   const [refreshKey, setRefreshKey] = useState(0);
+  const [currentFileId, setCurrentFileId] = useState<string | undefined>();
+  const [currentFileName, setCurrentFileName] = useState<string | undefined>();
 
-  const handleUploadSuccess = () => {
+  const handleUploadSuccess = (fileId: string, fileName: string) => {
     setRefreshKey((prev) => prev + 1);
+    setCurrentFileId(fileId);
+    setCurrentFileName(fileName);
   };
 
   return (
@@ -52,7 +56,7 @@ const Index = () => {
           <h2 className="text-2xl font-semibold text-foreground">
             💬 Chat com IA
           </h2>
-          <ChatInterface />
+          <ChatInterface fileId={currentFileId} fileName={currentFileName} />
         </section>
 
         {/* Files List Section */}

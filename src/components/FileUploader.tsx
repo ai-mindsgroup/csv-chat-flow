@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import axios from '@/lib/axios';
+import { isAxiosError } from 'axios';
 import { Upload, FileText, Loader2, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -13,7 +14,7 @@ interface UploadResponse {
 }
 
 interface FileUploaderProps {
-  onUploadSuccess: () => void;
+  onUploadSuccess: (fileId: string, fileName: string) => void;
 }
 
 const FileUploader = ({ onUploadSuccess }: FileUploaderProps) => {
@@ -43,13 +44,19 @@ const FileUploader = ({ onUploadSuccess }: FileUploaderProps) => {
       });
       
       setTimeout(() => {
-        onUploadSuccess();
+        onUploadSuccess(response.data.file_id, response.data.filename);
         setUploadProgress('');
       }, 1500);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Erro no upload:', error);
+      let errorText = 'Tente novamente';
+      if (isAxiosError(error)) {
+        errorText = error.response?.data?.detail || error.message;
+      } else if (error instanceof Error) {
+        errorText = error.message;
+      }
       toast.error('Erro no upload', {
-        description: error.response?.data?.detail || error.message || 'Tente novamente',
+        description: errorText,
       });
       setUploadProgress('');
     } finally {
