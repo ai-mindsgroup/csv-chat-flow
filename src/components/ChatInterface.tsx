@@ -1,0 +1,166 @@
+import { useState, useRef, useEffect } from 'react';
+import axios from '@/lib/axios';
+import { Send, Bot, User, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+
+interface Message {
+  type: 'user' | 'bot';
+  text: string;
+  timestamp: Date;
+}
+
+const ChatInterface = () => {
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      type: 'bot',
+      text: 'Olá! Envie um arquivo CSV e faça perguntas sobre os dados. Posso ajudar com análises e insights.',
+      timestamp: new Date(),
+    },
+  ]);
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [sessionId, setSessionId] = useState<string | undefined>();
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const sendMessage = async () => {
+    if (!input.trim() || loading) return;
+
+    const userMessage: Message = {
+      type: 'user',
+      text: input,
+      timestamp: new Date(),
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
+    setInput('');
+    setLoading(true);
+
+    try {
+      const response = await axios.post('/chat', {
+        message: input,
+        session_id: sessionId,
+      });
+
+      const botMessage: Message = {
+        type: 'bot',
+        text: response.data.response,
+        timestamp: new Date(),
+      };
+
+      setMessages((prev) => [...prev, botMessage]);
+      
+      if (response.data.session_id) {
+        setSessionId(response.data.session_id);
+      }
+    } catch (error: any) {
+      console.error('Erro no chat:', error);
+      const errorMessage: Message = {
+        type: 'bot',
+        text: `❌ Erro: ${error.response?.data?.detail || error.message || 'Não foi possível processar sua mensagem'}`,
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
+
+  return (
+    <div className="bg-card rounded-lg shadow-sm border overflow-hidden flex flex-col h-[500px]">
+      {/* Messages Area */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {messages.map((msg, i) => (
+          <div
+            key={i}
+            className={`flex gap-3 ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
+          >
+            {msg.type === 'bot' && (
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                <Bot className="h-5 w-5 text-primary" />
+              </div>
+            )}
+            
+            <div
+              className={`max-w-[75%] rounded-lg px-4 py-2 ${
+                msg.type === 'user'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted text-foreground'
+              }`}
+            >
+              <div className="text-sm whitespace-pre-wrap break-words">{msg.text}</div>
+              <div
+                className={`text-xs mt-1 ${
+                  msg.type === 'user' ? 'text-primary-foreground/70' : 'text-muted-foreground'
+                }`}
+              >
+                {msg.timestamp.toLocaleTimeString('pt-BR', { 
+                  hour: '2-digit', 
+                  minute: '2-digit' 
+                })}
+              </div>
+            </div>
+
+            {msg.type === 'user' && (
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+                <User className="h-5 w-5 text-primary-foreground" />
+              </div>
+            )}
+          </div>
+        ))}
+
+        {loading && (
+          <div className="flex gap-3 justify-start">
+            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+              <Bot className="h-5 w-5 text-primary" />
+            </div>
+            <div className="bg-muted rounded-lg px-4 py-2 flex items-center gap-2">
+              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">Pensando...</span>
+            </div>
+          </div>
+        )}
+
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Input Area */}
+      <div className="border-t p-4 bg-background">
+        <div className="flex gap-2">
+          <Input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyPress={handleKeyPress}
+            placeholder="Digite sua mensagem..."
+            disabled={loading}
+            className="flex-1"
+          />
+          <Button
+            onClick={sendMessage}
+            disabled={loading || !input.trim()}
+            size="icon"
+          >
+            <Send className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ChatInterface;
